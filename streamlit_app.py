@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import base64
 from datetime import datetime, timedelta
-from streamlit_gsheets import GSheetsConnection
+# CORREÇÃO DA LINHA 5 - IMPORTAÇÃO OFICIAL DO STREAMLIT
+from streamlit.connections import GSheetsConnection
 
 # 1. CONFIGURAÇÃO BASE DA PÁGINA
 st.set_page_config(page_title="STAHL CRM - Sistema Integrado", layout="wide", initial_sidebar_state="expanded")
@@ -11,7 +12,7 @@ st.set_page_config(page_title="STAHL CRM - Sistema Integrado", layout="wide", in
 CAMINHO_LOGO = "logo_stahl.png"
 CAMINHO_LAYOUT_LOGIN = "layout_login.png"
 
-# Função auxiliar para converter imagem local em Base64 para o CSS de fundo
+# Função auxiliar para converter imagem local in Base64 para o CSS de fundo
 def obter_base64_da_imagem(caminho_arquivo):
     import os
     if os.path.exists(caminho_arquivo):
@@ -147,13 +148,13 @@ def carregar_aba_segura(nome_aba):
     except Exception:
         return pd.DataFrame([])
 
-# LEITURA DAS ABAS REAIS DA NUVEM
+# CORREÇÃO DOS NOMES DAS ABAS ADAPTADOS PARA O SINGULAR DO SEU DRIVE
 if 'df_orcar' not in st.session_state or st.session_state['df_orcar'].empty:
     st.session_state['df_orcar'] = carregar_aba_segura("Orçar")
 if 'df_orcados' not in st.session_state or st.session_state['df_orcados'].empty:
-    st.session_state['df_orcados'] = carregar_aba_segura("Orçados")
+    st.session_state['df_orcados'] = carregar_aba_segura("Orçado")
 if 'df_perdidos' not in st.session_state or st.session_state['df_perdidos'].empty:
-    st.session_state['df_perdidos'] = carregar_aba_segura("perdidos")
+    st.session_state['df_perdidos'] = carregar_aba_segura("perdido")
 
 USUARIOS_DB = {"thamires": {"nome": "Thamires Martins", "sigla": "TM", "perfil": "administrador"}}
 
@@ -356,7 +357,7 @@ if st.session_state['logado']:
                         
                 with act3:
                     if st.button("📨 Enviar Orçamento"):
-                        if not linhas_selecionadas.empty:
+                        if not líneas_selecionadas.empty:
                             indices_para_remover = []
                             for idx, row in linhas_selecionadas.iterrows():
                                 id_sol = row["IdSolicitacao"]
@@ -371,7 +372,8 @@ if st.session_state['logado']:
                                     indices_para_remover.append(id_sol)
                             st.session_state['df_orcar'] = st.session_state['df_orcar'][~st.session_state['df_orcar']['IdSolicitacao'].isin(indices_para_remover)]
                             conn.update(worksheet="Orçar", data=st.session_state['df_orcar'])
-                            conn.update(worksheet="Orçados", data=st.session_state['df_orcados'])
+                            # AJUSTADO PARA O NOME DA SUA ABA NO SINGULAR
+                            conn.update(worksheet="Orçado", data=st.session_state['df_orcados'])
                             st.session_state['mensagem_sucesso_orcar'] = "✅ Confirmação: Transferido para a base de Orçados!"
                             st.rerun()
                         else: st.warning("Por favor, marque a caixinha antes.")
@@ -379,10 +381,10 @@ if st.session_state['logado']:
 
         with aba_orcados:
             if not st.session_state['df_orcados'].empty: st.dataframe(st.session_state['df_orcados'], use_container_width=True)
-            else: st.info("Planilha 'Orçados' na nuvem está vazia.")
+            else: st.info("Planilha 'Orçado' na nuvem está vazia.")
         with aba_perdidos:
             if not st.session_state['df_perdidos'].empty: st.dataframe(st.session_state['df_perdidos'], use_container_width=True)
-            else: st.info("Planilha 'perdidos' na nuvem está vazia.")
+            else: st.info("Planilha 'perdido' na nuvem está vazia.")
 
     # --- CONFIGURAÇÃO ---
     elif menu == "⚙️ Configurações":
@@ -418,13 +420,15 @@ if st.session_state['logado']:
             up_orcados = st.file_uploader("2. Forçar Atualização Completa da Aba ORÇADOS:", type=['xlsx'])
             if up_orcados is not None and st.button("💾 Enviar e Substituir Aba ORÇADOS"):
                 df_up = pd.read_excel(up_orcados)
-                conn.update(worksheet="Orçados", data=df_up)
+                # AJUSTADO PARA O NOME DA SUA ABA NO SINGULAR
+                conn.update(worksheet="Orçado", data=df_up)
                 st.session_state['df_orcados'] = df_up
-                st.success("Aba 'Orçados' sincronizada com sucesso!")
+                st.success("Aba 'Orçado' sincronizada com sucesso!")
 
             up_perdidos = st.file_uploader("3. Forçar Atualização Completa da Aba PERDIDOS:", type=['xlsx'])
             if up_perdidos is not None and st.button("💾 Enviar e Substituir Aba PERDIDOS"):
                 df_up = pd.read_excel(up_perdidos)
-                conn.update(worksheet="perdidos", data=df_up)
+                # AJUSTADO PARA O NOME DA SUA ABA NO SINGULAR
+                conn.update(worksheet="perdido", data=df_up)
                 st.session_state['df_perdidos'] = df_up
-                st.success("Aba 'perdidos' sincronizada com sucesso!")
+                st.success("Aba 'perdido' sincronizada com sucesso!")
