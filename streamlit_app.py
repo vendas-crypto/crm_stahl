@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import base64
 from datetime import datetime, timedelta
-# CORREÇÃO DA LINHA 5 - IMPORTAÇÃO OFICIAL DO STREAMLIT
+from streamlit_gsheets import GSheetsConnection
 from streamlit.connections import GSheetsConnection
 
 # 1. CONFIGURAÇÃO BASE DA PÁGINA
@@ -357,7 +357,7 @@ if st.session_state['logado']:
                         
                 with act3:
                     if st.button("📨 Enviar Orçamento"):
-                        if not líneas_selecionadas.empty:
+                        if not linhas_selecionadas.empty:
                             indices_para_remover = []
                             for idx, row in linhas_selecionadas.iterrows():
                                 id_sol = row["IdSolicitacao"]

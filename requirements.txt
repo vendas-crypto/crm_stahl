@@ -1,5 +1,2 @@
-streamlit
-pandas
-openpyxl
+streamlit-google-sheets
 st-theme
-streamlit-gsheets
